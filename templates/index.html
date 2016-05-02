@@ -1,0 +1,107 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+		<script src="https://fb.me/react-15.0.2.js"></script>
+		<script src="https://fb.me/react-dom-15.0.2.js"></script>
+		<!--
+		I'm not pre-compiling JSX into native JS code for this demo, even though it is best practice.
+		Instead, I'm building a component to compile at runtime, so I need to load babel's browser.js, 
+		which will compile JSX inside this file into native JS code.
+		-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+		<script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+		<!-- The table used in this example is written of Allen Fang, and can be downloaded here:
+		https://github.com/AllenFang/react-bootstrap-table
+		I added Allen's assets into this project because there is no standard CDN link for it.
+		-->
+		<link rel="stylesheet"  href="/static/css/react-bootstrap-table.css"></link>
+		<script src="/static/js/react-bootstrap-table.js"></script>
+
+	</head>
+	<body>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-6">
+					<h1 class="text-center">SEO Optimized Table</h1>
+					<p>See how this loads, AS the page loads? Google's scrapers will be able to pick up on this.</p>
+					<p>If you're not noticing a difference between the two examples, please refresh to observe more closely.</p>
+					<br><br>
+
+					<div class="row" id="good-example"></div>
+
+				</div>
+				<div class="col-sm-6">
+					<h1 class="text-center">Non Optimized Table</h1>
+					<p>Notice how this takes a second to load (see that quick flash? You won't see it on the left hand side). That's because on page load, there is no data available to the table, until the Javascript executes to pull it from the server.</p>
+					<p>Because of this, Google scraper's don't wait until the Javascript executes. None of this data would be available to the scraper.
+					<div class="row" id="bad-example"></div>
+			</div>
+		</div>
+	</body>
+
+	<script type="text/babel">
+		// Here's the Optimized example
+		// Notice that I'm loading the data in from the server side as a JSON string,
+		// and parsing it in Javascript. This is important because Javascript doesn't understand
+		// native Python types, so JSON strings is essentially the bridge that connects them.
+
+		// Also notice that I use the safe filter, which means that I am marking this string as 'safe'.
+		// This means that the Jinja template is doing the string escaping of special characters, rather
+		// than Javascript. 
+
+		//That's because inside of script tags, no escaping must take place, so we have
+		// to escape FIRST before we give let Javascript handle it.
+		var products = JSON.parse('{{data|safe}}')
+
+		// React.js taking over to render the JSON string.
+		ReactDOM.render(
+		  <BootstrapTable data={products} striped={true} hover={true}>
+		      <TableHeaderColumn dataField="id" isKey={true} dataAlign="center" dataSort={true}>Product ID</TableHeaderColumn>
+		      <TableHeaderColumn dataField="name" dataSort={true}>Product Name</TableHeaderColumn>
+		      <TableHeaderColumn dataField="price">Product Price</TableHeaderColumn>
+		  </BootstrapTable>,
+		    document.getElementById("good-example")
+		);
+	</script>
+	<script type="text/babel">
+		
+
+		// Here's a non-optimized example. I first set the products state field to be an empty array, and update the state
+		// once an AJAX call to load the data has returned.
+		// This is bad for SEO because Google scraper's don't wait until the data has been loaded, before it starts scraping,
+		// so any data you want to show in the interim gets lost.
+		var NonOptimizedTable = React.createClass({
+			getInitialState: function() {
+				console.log("getting")
+				return {products: []}
+			},
+			componentDidMount: function() {
+				this.serverRequest = $.get("/load_products/", function (result) {
+					console.log("component did mount")
+					var products = JSON.parse(result)
+					this.setState({products: products})
+				}.bind(this));
+			},
+			render: function() {
+				return (
+					<div>
+						<BootstrapTable data={this.state.products} striped={true} hover={true}>
+							<TableHeaderColumn dataField="id" isKey={true} dataAlign="center" dataSort={true}>Product ID</TableHeaderColumn>
+							<TableHeaderColumn dataField="name" dataSort={true}>Product Name</TableHeaderColumn>
+							<TableHeaderColumn dataField="price">Product Price</TableHeaderColumn>
+						</BootstrapTable>	
+					</div>	
+				)
+		
+			}
+		})
+
+
+		ReactDOM.render(<NonOptimizedTable />, document.getElementById("bad-example"))
+
+	</script>
+</html>
