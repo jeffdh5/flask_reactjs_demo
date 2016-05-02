@@ -76,12 +76,10 @@
 		// so any data you want to show in the interim gets lost.
 		var NonOptimizedTable = React.createClass({
 			getInitialState: function() {
-				console.log("getting")
 				return {products: []}
 			},
 			componentDidMount: function() {
 				this.serverRequest = $.get("/load_products/", function (result) {
-					console.log("component did mount")
 					var products = JSON.parse(result)
 					this.setState({products: products})
 				}.bind(this));
