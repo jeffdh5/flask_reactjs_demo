@@ -4,7 +4,7 @@ from firebase import firebase
 app = Flask(__name__)
 
 # STEP 1: Replace db_url string with your own URL to firebase database
-db_url = "https://blinding-heat-2796.firebaseio.com"
+db_url = "https://xxxx-xxxx-xxxx.firebaseio.com"
 firebase = firebase.FirebaseApplication(db_url, authentication=None)
 
 data = [{
