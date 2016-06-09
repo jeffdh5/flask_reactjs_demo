@@ -26,8 +26,8 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-sm-6">
-					<h1 class="text-center">SEO Optimized Table</h1>
-					<p>See how this loads, AS the page loads? Google's scrapers will be able to pick up on this.</p>
+					<h1 class="text-center">Task List - SEO Optimized Table</h1>
+					<p>See how the data is available on page load? Google's scrapers will be able to pick up on this.</p>
 					<p>If you're not noticing a difference between the two examples, please refresh to observe more closely.</p>
 					<br><br>
 
@@ -35,7 +35,7 @@
 
 				</div>
 				<div class="col-sm-6">
-					<h1 class="text-center">Non Optimized Table</h1>
+					<h1 class="text-center">Task List - Non Optimized Table</h1>
 					<p>Notice how this takes a second to load (see that quick flash? You won't see it on the left hand side). That's because on page load, there is no data available to the table, until the Javascript executes to pull it from the server.</p>
 					<p>Because of this, Google scraper's don't wait until the Javascript executes. None of this data would be available to the scraper.
 					<div class="row" id="bad-example"></div>
@@ -55,19 +55,23 @@
 
 		//That's because inside of script tags, no escaping must take place, so we have
 		// to escape FIRST before we give let Javascript handle it.
-		var products = JSON.parse('{{data|safe}}')
+ 		var decodeJSON = function(encodedJSON) {
+  			var decodedJSON = $('<div/>').html(encodedJSON).text();
+  			return $.parseJSON(decodedJSON);
+ 		}
+
+		var products = decodeJSON('{{data|safe}}')
 
 		// React.js taking over to render the JSON string.
 		ReactDOM.render(
 		  <BootstrapTable data={products} striped={true} hover={true}>
 		      <TableHeaderColumn dataField="id" isKey={true} dataAlign="center" dataSort={true}>Product ID</TableHeaderColumn>
-		      <TableHeaderColumn dataField="name" dataSort={true}>Product Name</TableHeaderColumn>
-		      <TableHeaderColumn dataField="price">Product Price</TableHeaderColumn>
+		      <TableHeaderColumn dataField="name" dataSort={true}>Task</TableHeaderColumn>
+		      <TableHeaderColumn dataField="minutes">Minutes</TableHeaderColumn>
 		  </BootstrapTable>,
 		    document.getElementById("good-example")
 		);
-	</script>
-	<script type="text/babel">
+
 		
 
 		// Here's a non-optimized example. I first set the products state field to be an empty array, and update the state
@@ -88,9 +92,9 @@
 				return (
 					<div>
 						<BootstrapTable data={this.state.products} striped={true} hover={true}>
-							<TableHeaderColumn dataField="id" isKey={true} dataAlign="center" dataSort={true}>Product ID</TableHeaderColumn>
-							<TableHeaderColumn dataField="name" dataSort={true}>Product Name</TableHeaderColumn>
-							<TableHeaderColumn dataField="price">Product Price</TableHeaderColumn>
+							<TableHeaderColumn dataField="id" isKey={true} dataAlign="center" dataSort={true}>Task ID</TableHeaderColumn>
+							<TableHeaderColumn dataField="name" dataSort={true}>Task</TableHeaderColumn>
+							<TableHeaderColumn dataField="minutes">Minutes</TableHeaderColumn>
 						</BootstrapTable>	
 					</div>	
 				)
